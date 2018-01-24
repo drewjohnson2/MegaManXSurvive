@@ -8,7 +8,6 @@
 
 #include <stdio.h>
 #include "Game.h"
-#include "Player.h"
 
 //typedef struct
 //{

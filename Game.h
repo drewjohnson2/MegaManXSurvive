@@ -14,8 +14,8 @@
 #include "Characters.h"
 #include "Environment.h"
 
-#define WIDTH 800
-#define HEIGHT 800
+#define WIDTH 1000
+#define HEIGHT 1000
 #define GRAVITY 1.0f
 
 SDL_Event event;       // Event Variable
@@ -30,8 +30,8 @@ typedef struct
     // Game images
     SDL_Texture *playerTextures[12];
     SDL_Texture *leftTextures[12];
-    SDL_Texture *jumpTextures[2];
-    SDL_Texture *jumpLTextures[2];
+    SDL_Texture *jumpTextures[4];
+    SDL_Texture *jumpLTextures[4];
     SDL_Texture *floorTexture;
     
     

@@ -14,7 +14,6 @@
 #include <SDL2_image/SDL_image.h>
 #include <time.h>
 #include "Game.h"
-#include "Player.h"
 #include "Environment.h"
 
 void processEvents(GameState *, bool *);

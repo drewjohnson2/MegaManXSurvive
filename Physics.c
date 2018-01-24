@@ -10,13 +10,13 @@
 #include <SDL2_image/SDL_image.h>
 #include <time.h>
 #include "Game.h"
-#include "Player.h"
 #include "Environment.h"
 #include "Physics.h"
 
 //---------------------------------------------------
 void processEvents(GameState *gameState, bool *running)
 {
+    gameState->time++;
     
     while(SDL_PollEvent(&event))
     {
@@ -36,6 +36,7 @@ void processEvents(GameState *gameState, bool *running)
                 {
                     gameState->player.dy = -15;
                     gameState->player.jumping = 1;
+                    gameState->player.jumpAnimFrame = 0;
                 }
                 
                 else
@@ -49,40 +50,54 @@ void processEvents(GameState *gameState, bool *running)
         if(state[SDL_SCANCODE_LEFT])
         {
             gameState->player.facingLeft = 1;
-            gameState->player.dx = -4.5;
+            gameState->player.dx = -4.9;
         }
         
         else if(state[SDL_SCANCODE_RIGHT])
         {
             gameState->player.facingLeft = 0;
-            gameState->player.dx = 4.5;
+            gameState->player.dx = 4.9;
             
         }
         
-        else if(!(state[SDL_SCANCODE_LEFT]) && !(state[SDL_SCANCODE_RIGHT]) && !gameState->player.jumping && !(state[SDL_SCANCODE_SPACE]))
+        // Resets animation frame and stops character from moving
+        else if(!(state[SDL_SCANCODE_LEFT]) && !(state[SDL_SCANCODE_RIGHT]) && !gameState->player.jumping && !(state[SDL_SCANCODE_SPACE])
+                && !(state[SDL_SCANCODE_UP]) && !gameState->player.dash)
         {
             gameState->player.animFrame = 0;
             gameState->player.dx = 0;
             
         }
         
-        else if(!(state[SDL_SCANCODE_SPACE]) && gameState->player.dy < 0)
+        else if(!(state[SDL_SCANCODE_SPACE]) && gameState->player.dy < 0 && !gameState->player.dash)
         {
             gameState->player.dy = 0;
             gameState->player.falling = 1;
             gameState->player.dx = 0;
         }
+        
+        
+        else if(state[SDL_SCANCODE_UP] && !gameState->player.dash)
+        {
+            
+            gameState->player.dx = 40;
+            gameState->player.dash = 1;
+        }
+        
         else
         {
-            gameState->player.dx = 0;
+            if(!gameState->player.dash)
+                gameState->player.dx = 0;
 
         }
     }
     
-    if((gameState->player.x <= -20 && gameState->player.facingLeft) || (gameState->player.x >= 690 && !gameState->player.facingLeft))
-    {
-        gameState->player.dx = 0;
-    }
+//    if((gameState->player.x <= -15 && gameState->player.facingLeft) || (gameState->player.x >= 690 && !gameState->player.facingLeft))
+//    {
+//        gameState->player.dx = 0;
+//        gameState->player.animFrame = 0;
+//    }
+    
 }
 
 //---------------------------------------------------
@@ -97,9 +112,9 @@ void processMovement(GameState *gameState)
     player->x += player->dx;
     player->y += player->dy;
     
-    if(player->dx != 0 && !player->jumping)
+    if(player->dx != 0 && !player->jumping && !player->dash)
     {
-        if(gameState->time % 4 == 0)
+        if(gameState->time % 6 == 0)
         {
             if(player->animFrame == 0)
             {
@@ -171,25 +186,47 @@ void processMovement(GameState *gameState)
     
     else if(player->jumping)
     {
-        
-        if(gameState->time %4 == 0 && player->dy < 0)
+        if(player->dash)
         {
-            player->jumpAnimFrame = 0;
+            if(player->dx > 0)
+                player->dx -=5;
+            
+            else if(player->dx == 0 && !player->jumping)
+            {
+                player->dash = 0;
+                player->dx = 0;
+            }
+            
         }
         
-        else if(gameState->time % 4 == 0 && player->dy > 0)
+        if(gameState->time % 4 == 0 && player->dy < 0)
         {
             player->jumpAnimFrame = 1;
         }
         
-        //printf("%f    %d\n", player->dy, player->animFrame);
+        else if(gameState->time % 4 == 0 && player->dy > 0)
+        {
+            player->jumpAnimFrame = 2;
+        }
+        
+    }
+    
+    else if(player->dash == 1)
+    {
+        if(player->dx > 0)
+            player->dx -= 5;
+        
+        else if(player->dx == 0 && !player->jumping)
+        {
+            player->dash = 0;
+            player->dx = 0;
+        }
+        
     }
     
     if(player->y <= 450)
     {
         player->falling = 1;
-        //player->dy = 0;
-        
     }
     
     if(player->falling)
@@ -203,13 +240,17 @@ void processMovement(GameState *gameState)
             player->falling = 0;
             player->jumping = 0;
             player->animFrame = 0;
+            player->jumpAnimFrame = 3;
         }
     }
     
-    if((player->x <= -20 && player->facingLeft) || (player->x >= 690 && !player->facingLeft))
-    {
-        player->dx = 0;
-    }
+//    if((player->x <= -15 && player->facingLeft) || (player->x >= 690 && !player->facingLeft))
+//    {
+//        player->dx = 0;
+//        player->animFrame = 0;
+//    }
+    
+    printf("%d\n", player->dash);
 }
 //---------------------------------------------------
 

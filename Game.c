@@ -10,7 +10,6 @@
 #include <SDL2_image/SDL_image.h>
 #include <time.h>
 #include "Game.h"
-#include "Player.h"
 #include "Environment.h"
 #include "Physics.h"
 
@@ -31,7 +30,7 @@ bool init(GameState *gameState)
     else
     {
         // Creates Window
-        window = SDL_CreateWindow("Jack Hammer's Back Door Slammers",
+        window = SDL_CreateWindow("Mega Man X: Survival",
                                   SDL_WINDOWPOS_CENTERED,
                                   SDL_WINDOWPOS_CENTERED,
                                   WIDTH,
@@ -194,30 +193,49 @@ bool init(GameState *gameState)
     // Load Jump images //
     //                  //
     
-    surface = IMG_Load("images/jump/jump3.png");
+    surface = IMG_Load("images/jump/jump0.png");
 
     gameState->jumpTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
-
-    surface = IMG_Load("images/jump/jump5.png");
-
+    
+    surface = IMG_Load("images/jump/jump1.png");
+    
     gameState->jumpTextures[1] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
+
+    surface = IMG_Load("images/jump/jump2.png");
+
+    gameState->jumpTextures[2] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
+    
+    surface = IMG_Load("images/jump/jump3.png");
+    
+    gameState->jumpTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
     
     //                  //
     // Load Jump images //
     //                  //
     
-    surface = IMG_Load("images/jump/jump3l.png");
+    surface = IMG_Load("images/jump/jump0l.png");
     
     gameState->jumpLTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
     
-    surface = IMG_Load("images/jump/jump5l.png");
+    surface = IMG_Load("images/jump/jump1l.png");
     
     gameState->jumpLTextures[1] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
     
+    surface = IMG_Load("images/jump/jump2l.png");
+    
+    gameState->jumpLTextures[2] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
+    
+    surface = IMG_Load("images/jump/jump3l.png");
+    
+    gameState->jumpLTextures[3] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
 
     
     /*--------------------------------------------------
@@ -273,7 +291,7 @@ void run(GameState *gameState)
 void renderScreen(SDL_Renderer *render, GameState *gameState)
 {
     // Set background color
-    SDL_SetRenderDrawColor(render, 0, 0, 255, 255);
+    SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
     SDL_RenderClear(render);
     int height = 100, width = 100;
     
@@ -328,11 +346,12 @@ void cleanUp(GameState *gameState)
         SDL_DestroyTexture(gameState->leftTextures[i]);
     }
     
-    for(int i = 0; i < 2; i++)
+    for(int i = 0; i < 4; i++)
     {
         SDL_DestroyTexture(gameState->jumpTextures[i]);
         SDL_DestroyTexture(gameState->jumpLTextures[i]);
     }
+    
     
     SDL_DestroyRenderer(render);
     SDL_DestroyWindow(window);

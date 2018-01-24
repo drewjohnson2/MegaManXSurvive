@@ -17,7 +17,8 @@ typedef struct
     float dx, dy;
     short health;
     
-    int animFrame, slowingDown, falling, facingLeft, jumping, jumpAnimFrame;
+    int animFrame, falling, facingLeft, jumping, jumpAnimFrame;
+    short dash;
     
 } Character;
 
