@@ -17,6 +17,8 @@
 #define WIDTH 1000
 #define HEIGHT 1000
 #define GRAVITY 1.0f
+#define DASH_SLOWDOWN_RATE 0.8f
+#define MAX_JUMP_LOCATION 450
 
 SDL_Event event;       // Event Variable
 SDL_Renderer *render;
@@ -32,6 +34,8 @@ typedef struct
     SDL_Texture *leftTextures[12];
     SDL_Texture *jumpTextures[4];
     SDL_Texture *jumpLTextures[4];
+    SDL_Texture *dashTextures[2];
+    SDL_Texture *dashLTextures[2];
     SDL_Texture *floorTexture;
     
     

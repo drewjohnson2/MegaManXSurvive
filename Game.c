@@ -213,11 +213,9 @@ bool init(GameState *gameState)
     gameState->jumpTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
     
-    //                  //
-    // Load Jump images //
-    //                  //
+    // Left facing jump
     
-    surface = IMG_Load("images/jump/jump0l.png");
+    surface = IMG_Load("images/jump/jump0.png");
     
     gameState->jumpLTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
@@ -237,7 +235,31 @@ bool init(GameState *gameState)
     gameState->jumpLTextures[3] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
 
+    //                  //
+    // Load dash images //
+    //                  //
     
+    surface = IMG_Load("images/dashright/dash00.png");
+    
+    gameState->dashTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
+    
+    surface = IMG_Load("images/dashright/dash01.png");
+    
+    gameState->dashTextures[1] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
+    
+    // Left facing dash
+    
+    surface = IMG_Load("images/dashleft/dash00.png");
+    
+    gameState->dashLTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
+    
+    surface = IMG_Load("images/dashleft/dash01.png");
+    
+    gameState->dashLTextures[1] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
     /*--------------------------------------------------
      
      
@@ -262,8 +284,8 @@ bool init(GameState *gameState)
     
     gameState->floor.x = 0;
     gameState->floor.y = 600;
-    gameState->floor.w = 800;
-    gameState->floor.h = 200;
+    gameState->floor.w = 1000;
+    gameState->floor.h = 300;
     
     return success;
 }
@@ -299,20 +321,26 @@ void renderScreen(SDL_Renderer *render, GameState *gameState)
     SDL_Rect floorRect = {gameState->floor.x, gameState->floor.y, gameState->floor.w, gameState->floor.h};
     SDL_RenderCopy(render, gameState->floorTexture, NULL, &floorRect);
     
-    if(gameState->player.jumping)
+    if(gameState->player.jumping && gameState->player.dash)
     {
-        height = 90;
-        width = 115;
+        height = 120;
+        width = 85;
     }
     
-    SDL_Rect rect = {gameState->player.x, gameState->player.y , height, width};
+    else if(gameState->player.dash && !gameState->player.jumping)
+    {
+        height = 92;
+        width = 100;
+    }
     
-    if(!gameState->player.facingLeft && !gameState->player.jumping)
+    SDL_Rect rect = {gameState->player.x, gameState->player.y , width, height};
+    
+    if(!gameState->player.facingLeft && !gameState->player.jumping && !gameState->player.dash)
     {
         SDL_RenderCopyEx(render, gameState->playerTextures[gameState->player.animFrame], NULL, &rect, 0, NULL, 0);
     }
     
-    else if(gameState->player.facingLeft && !gameState->player.jumping)
+    else if(gameState->player.facingLeft && !gameState->player.jumping && !gameState->player.dash)
     {
         SDL_RenderCopyEx(render, gameState->leftTextures[gameState->player.animFrame], NULL, &rect, 0, NULL, 0);
     }
@@ -325,6 +353,16 @@ void renderScreen(SDL_Renderer *render, GameState *gameState)
     else if (gameState->player.jumping && gameState->player.facingLeft)
     {
         SDL_RenderCopyEx(render, gameState->jumpLTextures[gameState->player.jumpAnimFrame], NULL, &rect, 0, NULL, 0);
+    }
+    
+    else if(gameState->player.dash && !gameState->player.jumping && !gameState->player.facingLeft)
+    {
+        SDL_RenderCopyEx(render, gameState->dashTextures[gameState->player.animFrame], NULL, &rect, 0, NULL, 0);
+    }
+    
+    else if(gameState->player.dash && !gameState->player.jumping && gameState->player.facingLeft)
+    {
+        SDL_RenderCopyEx(render, gameState->dashLTextures[gameState->player.animFrame], NULL, &rect, 0, NULL, 0);
     }
     
     else
@@ -350,6 +388,12 @@ void cleanUp(GameState *gameState)
     {
         SDL_DestroyTexture(gameState->jumpTextures[i]);
         SDL_DestroyTexture(gameState->jumpLTextures[i]);
+    }
+    
+    for(int i = 0; i < 2; i++)
+    {
+        SDL_DestroyTexture(gameState->dashTextures[i]);
+        SDL_DestroyTexture(gameState->dashLTextures[i]);
     }
     
     

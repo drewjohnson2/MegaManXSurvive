@@ -30,7 +30,7 @@ void processEvents(GameState *gameState, bool *running)
         
         if(!gameState->player.jumping)
         {
-            if(state[SDL_SCANCODE_SPACE])
+            if(state[SDL_SCANCODE_S])
             {
                 if(gameState->player.y >= 500)
                 {
@@ -61,15 +61,15 @@ void processEvents(GameState *gameState, bool *running)
         }
         
         // Resets animation frame and stops character from moving
-        else if(!(state[SDL_SCANCODE_LEFT]) && !(state[SDL_SCANCODE_RIGHT]) && !gameState->player.jumping && !(state[SDL_SCANCODE_SPACE])
-                && !(state[SDL_SCANCODE_UP]) && !gameState->player.dash)
+        else if(!(state[SDL_SCANCODE_LEFT]) && !(state[SDL_SCANCODE_RIGHT]) && !gameState->player.jumping && !(state[SDL_SCANCODE_S])
+                && !(state[SDL_SCANCODE_D]) && !gameState->player.dash)
         {
             gameState->player.animFrame = 0;
             gameState->player.dx = 0;
             
         }
         
-        else if(!(state[SDL_SCANCODE_SPACE]) && gameState->player.dy < 0 && !gameState->player.dash)
+        else if(!(state[SDL_SCANCODE_S]) && gameState->player.dy < 0 && !gameState->player.dash)
         {
             gameState->player.dy = 0;
             gameState->player.falling = 1;
@@ -77,10 +77,12 @@ void processEvents(GameState *gameState, bool *running)
         }
         
         
-        else if(state[SDL_SCANCODE_UP] && !gameState->player.dash)
+        else if(state[SDL_SCANCODE_D] && !gameState->player.jumping && !gameState->player.dash)
         {
+            if(gameState->player.facingLeft) gameState->player.dx = -20;
             
-            gameState->player.dx = 40;
+            else gameState->player.dx = 20;
+            
             gameState->player.dash = 1;
         }
         
@@ -188,13 +190,20 @@ void processMovement(GameState *gameState)
     {
         if(player->dash)
         {
-            if(player->dx > 0)
-                player->dx -=5;
+            if(player->dx > 0 && !player->facingLeft)
+            {
+                player->dx -= DASH_SLOWDOWN_RATE;
+                
+            }
+            
+            else if(player->dx < 0 && player->facingLeft)
+            {
+                player->dx += DASH_SLOWDOWN_RATE;
+            }
             
             else if(player->dx == 0 && !player->jumping)
             {
                 player->dash = 0;
-                player->dx = 0;
             }
             
         }
@@ -211,12 +220,45 @@ void processMovement(GameState *gameState)
         
     }
     
-    else if(player->dash == 1)
+    else if(player->dash)
     {
-        if(player->dx > 0)
-            player->dx -= 5;
+        if(player->dx > 0 && !player->facingLeft)
+        {
+            if(player->dx >= 20 || player->dx <= 6)
+            {
+                gameState->player.animFrame = 0;
+            }
+            
+            else
+            {
+                gameState->player.animFrame = 1;
+            }
+            
+            player->dx -= DASH_SLOWDOWN_RATE;
+        }
         
-        else if(player->dx == 0 && !player->jumping)
+        else if(player->dx < 0 && player->facingLeft)
+        {
+            if(player->dx <= -20 || player->dx >= -6)
+            {
+                gameState->player.animFrame = 0;
+            }
+
+            else
+            {
+                gameState->player.animFrame = 1;
+            }
+
+            player->dx += DASH_SLOWDOWN_RATE;
+        }
+        
+        else if(player->dx >= 0 && !player->jumping && player->facingLeft)
+        {
+            player->dash = 0;
+            player->dx = 0;
+        }
+        
+        else if(player->dx <= 0 && !player->jumping && !player->facingLeft)
         {
             player->dash = 0;
             player->dx = 0;
@@ -224,7 +266,7 @@ void processMovement(GameState *gameState)
         
     }
     
-    if(player->y <= 450)
+    if(player->y <= MAX_JUMP_LOCATION)
     {
         player->falling = 1;
     }
@@ -250,7 +292,7 @@ void processMovement(GameState *gameState)
 //        player->animFrame = 0;
 //    }
     
-    printf("%d\n", player->dash);
+    printf("%f  %d\n", player->dx, player->dash);
 }
 //---------------------------------------------------
 
