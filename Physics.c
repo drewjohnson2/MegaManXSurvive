@@ -32,7 +32,7 @@ void processEvents(GameState *gameState, bool *running)
         {
             if(state[SDL_SCANCODE_S])
             {
-                if(gameState->player.y >= 500)
+                if(gameState->player.y >= 485)
                 {
                     gameState->player.dy = -15;
                     gameState->player.jumping = 1;
@@ -46,14 +46,23 @@ void processEvents(GameState *gameState, bool *running)
             }
         }
         
+        if(state[SDL_SCANCODE_D] && !gameState->player.jumping && !gameState->player.dash)
+        {
+            if(gameState->player.facingLeft) gameState->player.dx = -20;
+            
+            else gameState->player.dx = 24;
+            
+            gameState->player.dash = 1;
+        }
+        
         //Walking
-        if(state[SDL_SCANCODE_LEFT])
+        if(state[SDL_SCANCODE_LEFT] && !gameState->player.dash)
         {
             gameState->player.facingLeft = 1;
             gameState->player.dx = -4.9;
         }
         
-        else if(state[SDL_SCANCODE_RIGHT])
+        else if(state[SDL_SCANCODE_RIGHT] && !gameState->player.dash)
         {
             gameState->player.facingLeft = 0;
             gameState->player.dx = 4.9;
@@ -62,7 +71,7 @@ void processEvents(GameState *gameState, bool *running)
         
         // Resets animation frame and stops character from moving
         else if(!(state[SDL_SCANCODE_LEFT]) && !(state[SDL_SCANCODE_RIGHT]) && !gameState->player.jumping && !(state[SDL_SCANCODE_S])
-                && !(state[SDL_SCANCODE_D]) && !gameState->player.dash)
+                && !(state[SDL_SCANCODE_D]))
         {
             gameState->player.animFrame = 0;
             gameState->player.dx = 0;
@@ -76,29 +85,14 @@ void processEvents(GameState *gameState, bool *running)
             gameState->player.dx = 0;
         }
         
-        
-        else if(state[SDL_SCANCODE_D] && !gameState->player.jumping && !gameState->player.dash)
-        {
-            if(gameState->player.facingLeft) gameState->player.dx = -20;
-            
-            else gameState->player.dx = 20;
-            
-            gameState->player.dash = 1;
-        }
-        
         else
         {
             if(!gameState->player.dash)
                 gameState->player.dx = 0;
 
         }
+        
     }
-    
-//    if((gameState->player.x <= -15 && gameState->player.facingLeft) || (gameState->player.x >= 690 && !gameState->player.facingLeft))
-//    {
-//        gameState->player.dx = 0;
-//        gameState->player.animFrame = 0;
-//    }
     
 }
 
@@ -208,23 +202,32 @@ void processMovement(GameState *gameState)
             
         }
         
-        if(gameState->time % 4 == 0 && player->dy < 0)
+        if(gameState->time % 4 == 0 && player->dy < 0 && player->y > 460)
+        {
+            player->jumpAnimFrame = 0;
+        }
+        
+        else if(gameState->time % 4 == 0 && player->dy < 0 && player->y < 480)
         {
             player->jumpAnimFrame = 1;
         }
         
-        else if(gameState->time % 4 == 0 && player->dy > 0)
+        else if(gameState->time % 4 == 0 && player->dy > 0 && player->y < 480 && player->dy < 15)
         {
             player->jumpAnimFrame = 2;
         }
         
+        else if(gameState->time % 4 == 0 && player->dy > 0  && player->dy >=15)
+        {
+            player->jumpAnimFrame = 3;
+        }
     }
     
     else if(player->dash)
     {
         if(player->dx > 0 && !player->facingLeft)
         {
-            if(player->dx >= 20 || player->dx <= 6)
+            if(player->dx >= 24 || player->dx <= 6)
             {
                 gameState->player.animFrame = 0;
             }
@@ -239,7 +242,7 @@ void processMovement(GameState *gameState)
         
         else if(player->dx < 0 && player->facingLeft)
         {
-            if(player->dx <= -20 || player->dx >= -6)
+            if(player->dx <= -24 || player->dx >= -6)
             {
                 gameState->player.animFrame = 0;
             }
@@ -275,9 +278,9 @@ void processMovement(GameState *gameState)
     {
         player->dy += GRAVITY;
         
-        if(player->y >= 500)
+        if(player->y >= 484)
         {
-            player->y = 503;
+            player->y = 485;
             player->dy = 0;
             player->falling = 0;
             player->jumping = 0;
@@ -286,13 +289,6 @@ void processMovement(GameState *gameState)
         }
     }
     
-//    if((player->x <= -15 && player->facingLeft) || (player->x >= 690 && !player->facingLeft))
-//    {
-//        player->dx = 0;
-//        player->animFrame = 0;
-//    }
-    
-    printf("%f  %d\n", player->dx, player->dash);
 }
 //---------------------------------------------------
 

@@ -210,7 +210,7 @@ bool init(GameState *gameState)
     
     surface = IMG_Load("images/jump/jump3.png");
     
-    gameState->jumpTextures[0] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    gameState->jumpTextures[3] = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
     
     // Left facing jump
@@ -272,14 +272,19 @@ bool init(GameState *gameState)
     
     // Initialize starting position
     gameState->player.x = 50;
-    gameState->player.y = 503;
+    gameState->player.y = 485;
     gameState->player.dx = 0;
     gameState->player.dy = 0;
     gameState->player.facingLeft = 0;
     
-    surface = IMG_Load("floor.png");
+    surface = IMG_Load("images/background/floor.png");
     
     gameState->floorTexture = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
+    SDL_FreeSurface(surface);
+    
+    surface = IMG_Load("images/background/bg.png");
+    
+    gameState->backgroundTexture = SDL_CreateTextureFromSurface(gameState->gsRender, surface);
     SDL_FreeSurface(surface);
     
     gameState->floor.x = 0;
@@ -315,22 +320,25 @@ void renderScreen(SDL_Renderer *render, GameState *gameState)
     // Set background color
     SDL_SetRenderDrawColor(render, 0, 0, 0, 0);
     SDL_RenderClear(render);
-    int height = 100, width = 100;
+    int height = 120, width = 120;
+    
+    SDL_Rect bgRect = {0, 0, 1000, 800};
+    SDL_RenderCopy(render, gameState->backgroundTexture, NULL, &bgRect);
     
     // Draw floor
     SDL_Rect floorRect = {gameState->floor.x, gameState->floor.y, gameState->floor.w, gameState->floor.h};
     SDL_RenderCopy(render, gameState->floorTexture, NULL, &floorRect);
     
-    if(gameState->player.jumping && gameState->player.dash)
+    if(gameState->player.jumping)
     {
-        height = 120;
-        width = 85;
+        height = 150;
+        width = 100;
     }
     
     else if(gameState->player.dash && !gameState->player.jumping)
     {
-        height = 92;
-        width = 100;
+        height = 111;
+        width = 120;
     }
     
     SDL_Rect rect = {gameState->player.x, gameState->player.y , width, height};
@@ -395,6 +403,9 @@ void cleanUp(GameState *gameState)
         SDL_DestroyTexture(gameState->dashTextures[i]);
         SDL_DestroyTexture(gameState->dashLTextures[i]);
     }
+    
+    SDL_DestroyTexture(gameState->backgroundTexture);
+    SDL_DestroyTexture(gameState->floorTexture);
     
     
     SDL_DestroyRenderer(render);
